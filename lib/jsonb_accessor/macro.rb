@@ -11,7 +11,7 @@ module JsonbAccessor
 
         # Defines virtual attributes for each jsonb field.
         field_types.each do |name, type|
-          namespaced_name = field_namespace.blank? ? name : field_namespace.to_s + name.to_s
+          namespaced_name = field_namespace.blank? ? name : field_namespace.to_s + '_' + name.to_s
           attribute namespaced_name.to_sym, *type
         end
 
@@ -36,7 +36,7 @@ module JsonbAccessor
         names_and_defaults = field_types.each_with_object({}) do |(name, type), mapping|
           _type, options = Array(type)
           field_default = options.try(:delete, :default)
-          namespaced_name = field_namespace.blank? ? name.to_s : field_namespace.to_s + name.to_s
+          namespaced_name = field_namespace.blank? ? name.to_s : field_namespace.to_s + '_' + name.to_s
           mapping[namespaced_name] = field_default unless field_default.nil?
         end
 
@@ -59,7 +59,7 @@ module JsonbAccessor
         setters = Module.new do
           # Overrides the setter created by `attribute` above to make sure the jsonb attribute is kept in sync.
           names_and_store_keys.each do |name, store_key|
-            namespaced_name = (field_namespace.blank? ? name.to_s : field_namespace.to_s + name.to_s).to_sym
+            namespaced_name = (field_namespace.blank? ? name.to_s : field_namespace.to_s + '_' + name.to_s).to_sym
 
             define_method("#{namespaced_name}=") do |value|
               super(value)
@@ -92,7 +92,7 @@ module JsonbAccessor
             jsonb_values.each do |store_key, value|
               name = names_and_store_keys.key(store_key)
               if name
-                namespaced_name = (field_namespace.blank? ? name.to_s : field_namespace.to_s + name.to_s).to_sym
+                namespaced_name = (field_namespace.blank? ? name.to_s : field_namespace.to_s + '_' + name.to_s).to_sym
                 write_attribute(namespaced_name, value)
               end
             end
